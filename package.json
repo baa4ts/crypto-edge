@@ -1,0 +1,68 @@
+{
+  "name": "crypto-edge",
+  "version": "1.0.0",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "crypto",
+    "webcrypto",
+    "encryption",
+    "decryption",
+    "hashing",
+    "signature",
+    "hmac",
+    "aes",
+    "rsa",
+    "ecdsa",
+    "rsa-oaep",
+    "rsa-pss",
+    "aes-gcm",
+    "aes-cbc",
+    "sha256",
+    "sha512",
+    "pbkdf2",
+    "hkdf",
+    "subtle-crypto",
+    "cryptography",
+    "security",
+    "wrapper",
+    "typescript",
+    "browser",
+    "nodejs"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rslib",
+    "dev": "rslib --watch",
+    "format": "prettier --write ./src",
+    "format:tests": "prettier --write ./tests",
+    "lint": "rslint ./src",
+    "lint:tests": "rslint ./tests",
+    "test": "rstest",
+    "test:watch": "rstest --watch"
+  },
+  "devDependencies": {
+    "@rslib/core": "^0.23.2",
+    "@rslint/core": "^0.5.3",
+    "@rstest/adapter-rslib": "^0.10.6",
+    "@rstest/core": "^0.10.6",
+    "@types/node": "^24.13.2",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3"
+  },
+  "private": false
+}
