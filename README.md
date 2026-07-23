@@ -2,6 +2,11 @@
 
 Es una libreria wrapper construida sobre Web [Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) para abstraer funcionalidades sencillas como hashing, criptografia y firmas.
 
+[![Socket Badge](https://badge.socket.dev/npm/package/crypto-edge/1.0.0)](https://badge.socket.dev/npm/package/crypto-edge/1.0.0) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/baa4ts/crypto-edge)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Rslib](https://img.shields.io/badge/Rslib-07C160?style=flat&logo=rsbuild&logoColor=white)](https://rslib.rs/)
+[![Rstest](https://img.shields.io/badge/Rstest-00A8FF?style=flat&logo=rspack&logoColor=white)](https://rstest.rs/)
+
 - [Documentacion - DeepWiki](https://deepwiki.com/baa4ts/crypto-edge)
 - [Primeros Pasos - DeepWiki](https://deepwiki.com/baa4ts/crypto-edge/1.1-getting-started)
 
