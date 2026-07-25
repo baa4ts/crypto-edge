@@ -2,6 +2,18 @@
   "name": "crypto-edge",
   "version": "1.0.0",
   "license": "BSD-3-Clause",
+    "author": {
+    "url": "https://github.com/baa4ts",
+    "name": "baa4ts"
+  },
+    "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baa4ts/compress-edge.git"
+  },
+  "homepage": "https://github.com/baa4ts/compress-edge#readme",
+  "bugs": {
+    "url": "https://github.com/baa4ts/compress-edge/issues"
+  },
   "keywords": [
     "crypto",
     "webcrypto",
