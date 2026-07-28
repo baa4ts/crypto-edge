@@ -1,5 +1,10 @@
 import { expect, test, describe } from '@rstest/core';
 import { Signature } from '../src/index';
+import {
+  CryptoEdgeError,
+  SignatureSignError,
+  SignatureVerifyError,
+} from '../src/index';
 
 describe('Signature Helper', () => {
   test('HMAC: Firmar y verificar correctamente un texto', async () => {
@@ -156,4 +161,59 @@ describe('Signature Helper', () => {
 
     expect(elapsed).toBeLessThan(300);
   });
+});
+
+test('HMAC: Firmar con clave de tipo invalido lanza SignatureSignError', async () => {
+  const hmac = new Signature('HMAC');
+  const aesKey = await crypto.subtle.generateKey(
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt'],
+  );
+  await expect(hmac.sign('test', aesKey)).rejects.toBeInstanceOf(
+    SignatureSignError,
+  );
+});
+
+test('HMAC: Verificar con clave de tipo invalido lanza SignatureVerifyError', async () => {
+  const hmac = new Signature('HMAC');
+  const aesKey = await crypto.subtle.generateKey(
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt'],
+  );
+  await expect(
+    hmac.verify('test', 'aW52YWxpZA==', aesKey),
+  ).rejects.toBeInstanceOf(SignatureVerifyError);
+});
+
+test('ECDSA: Verificar con firma Base64 invalida lanza SignatureVerifyError', async () => {
+  const ecdsa = new Signature('ECDSA');
+  const keyPair = await ecdsa.key();
+  await expect(
+    ecdsa.verify('test', 'no-es-base64-valido!!!', keyPair),
+  ).rejects.toBeInstanceOf(SignatureVerifyError);
+});
+
+test('SignatureSignError es instancia de CryptoEdgeError', async () => {
+  const hmac = new Signature('HMAC');
+  const aesKey = await crypto.subtle.generateKey(
+    { name: 'AES-GCM', length: 256 },
+    true,
+    ['encrypt'],
+  );
+  await expect(hmac.sign('test', aesKey)).rejects.toBeInstanceOf(
+    CryptoEdgeError,
+  );
+});
+
+test('SignatureVerifyError preserva cause', async () => {
+  const ecdsa = new Signature('ECDSA');
+  const keyPair = await ecdsa.key();
+  try {
+    await ecdsa.verify('test', 'no-es-base64-valido!!!', keyPair);
+  } catch (err) {
+    expect(err).toBeInstanceOf(SignatureVerifyError);
+    expect((err as SignatureVerifyError).cause).toBeDefined();
+  }
 });

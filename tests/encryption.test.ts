@@ -1,9 +1,12 @@
 import { expect, test, describe } from '@rstest/core';
-import { Encryption } from '../src/index';
+import {
+  Base64,
+  CryptoEdgeError,
+  Encryption,
+  EncryptionDecryptError,
+} from '../src/index';
 
 describe('Encryption Helper', () => {
-  // Tests basicos: encriptar → desencriptar → verificar texto identico
-
   test('AES-GCM: Encriptar y desencriptar texto basico', async () => {
     const enc = new Encryption('AES-GCM');
     const key = await enc.key();
@@ -242,4 +245,71 @@ describe('Encryption Helper', () => {
 
     expect(elapsed).toBeLessThan(400);
   });
+});
+
+test('AES-GCM: Desencriptar con clave incorrecta lanza EncryptionDecryptError', async () => {
+  const enc = new Encryption('AES-GCM');
+  const keyCorrecta = await enc.key();
+  const keyIncorrecta = await enc.key();
+  const { ciphertext, iv } = await enc.encrypt('secreto', keyCorrecta);
+  await expect(
+    enc.decrypt(ciphertext, keyIncorrecta, iv),
+  ).rejects.toBeInstanceOf(EncryptionDecryptError);
+});
+
+test('AES-GCM: EncryptionDecryptError es instancia de CryptoEdgeError', async () => {
+  const enc = new Encryption('AES-GCM');
+  const keyCorrecta = await enc.key();
+  const keyIncorrecta = await enc.key();
+  const { ciphertext, iv } = await enc.encrypt('test', keyCorrecta);
+  await expect(
+    enc.decrypt(ciphertext, keyIncorrecta, iv),
+  ).rejects.toBeInstanceOf(CryptoEdgeError);
+});
+
+test('AES-GCM: EncryptionDecryptError preserva cause', async () => {
+  const enc = new Encryption('AES-GCM');
+  const keyCorrecta = await enc.key();
+  const keyIncorrecta = await enc.key();
+  const { ciphertext, iv } = await enc.encrypt('test', keyCorrecta);
+  try {
+    await enc.decrypt(ciphertext, keyIncorrecta, iv);
+  } catch (err) {
+    expect(err).toBeInstanceOf(EncryptionDecryptError);
+    expect((err as EncryptionDecryptError).cause).toBeDefined();
+  }
+});
+
+test('AES-GCM: Desencriptar con IV incorrecto lanza EncryptionDecryptError', async () => {
+  const enc = new Encryption('AES-GCM');
+  const key = await enc.key();
+  const ivCorrecto = enc.generateIV();
+  const ivIncorrecto = enc.generateIV();
+  const { ciphertext } = await enc.encrypt('test', key, ivCorrecto);
+  await expect(
+    enc.decrypt(
+      ciphertext,
+      key,
+      Base64.bufferToBase64(ivIncorrecto.buffer as ArrayBuffer),
+    ),
+  ).rejects.toBeInstanceOf(EncryptionDecryptError);
+});
+
+test('AES-GCM: Ciphertext alterado lanza EncryptionDecryptError', async () => {
+  const enc = new Encryption('AES-GCM');
+  const key = await enc.key();
+  const { ciphertext, iv } = await enc.encrypt('texto original', key);
+  const ciphertextAlterado =
+    ciphertext.substring(0, 10) + 'XXX' + ciphertext.substring(13);
+  await expect(enc.decrypt(ciphertextAlterado, key, iv)).rejects.toBeInstanceOf(
+    EncryptionDecryptError,
+  );
+});
+
+test('AES-GCM: Generar clave de 128 bits funciona correctamente', async () => {
+  const enc = new Encryption('AES-GCM');
+  const key128 = await enc.key(128);
+  expect(key128).toBeDefined();
+  const rawKey = await enc.export({ key: key128 });
+  expect(rawKey.byteLength).toBe(16);
 });

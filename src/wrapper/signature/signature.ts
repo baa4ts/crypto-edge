@@ -3,6 +3,7 @@ import {
   SignatureAlgorithm,
 } from '../../helpers/SignatureKeyHelper';
 import { Base64 } from '../../helpers/base64';
+import { SignatureSignError, SignatureVerifyError } from '../../errors/errors';
 
 export type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512';
 
@@ -54,29 +55,32 @@ export class Signature<
   //
   // Implementacion
   //
-
   public async sign(
     buffer: string,
     key: CryptoKey | CryptoKeyPair,
     hash: HashAlgorithm = 'SHA-256',
     salt: number = 32,
   ): Promise<string> {
-    const tmp = new TextEncoder().encode(buffer);
-    const signingKey = 'privateKey' in key ? key.privateKey : key;
+    try {
+      const data = new TextEncoder().encode(buffer);
+      const signingKey = 'privateKey' in key ? key.privateKey : key;
 
-    const resultadoBuffer = await crypto.subtle.sign(
-      {
-        name: this.algorithm,
-        ...((this.algorithm === 'ECDSA' || this.algorithm === 'HMAC') && {
-          hash,
-        }),
-        ...(this.algorithm === 'RSA-PSS' && { saltLength: salt }),
-      },
-      signingKey,
-      tmp,
-    );
+      const resultadoBuffer = await crypto.subtle.sign(
+        {
+          name: this.algorithm,
+          ...((this.algorithm === 'ECDSA' || this.algorithm === 'HMAC') && {
+            hash,
+          }),
+          ...(this.algorithm === 'RSA-PSS' && { saltLength: salt }),
+        },
+        signingKey,
+        data,
+      );
 
-    return Base64.bufferToBase64(resultadoBuffer);
+      return Base64.bufferToBase64(resultadoBuffer);
+    } catch (error) {
+      throw new SignatureSignError(error);
+    }
   }
 
   //
@@ -144,8 +148,8 @@ export class Signature<
         signatureBytes,
         data,
       );
-    } catch {
-      return false;
+    } catch (error) {
+      throw new SignatureVerifyError(error);
     }
   }
 }

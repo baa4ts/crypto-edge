@@ -3,6 +3,10 @@ import {
   EncryptAlgorithm,
 } from '../../helpers/EncryptionKeyHelper';
 import { Base64 } from '../../helpers/base64';
+import {
+  EncryptionDecryptError,
+  EncryptionEncryptError,
+} from '../../errors/errors';
 
 /**
  * Utilidad para generar keys, encriptar y desencriptar datos usando
@@ -64,27 +68,30 @@ export class Encryption<
     iv?: Uint8Array,
     length?: number,
   ): Promise<{ ciphertext: string; iv: string }> {
-    const data = new TextEncoder().encode(buffer);
+    try {
+      const data = new TextEncoder().encode(buffer);
 
-    if (!iv) {
-      iv = crypto.getRandomValues(
-        new Uint8Array(this.algorithm === 'AES-GCM' ? 12 : 16),
-      );
+      if (!iv) {
+        iv = crypto.getRandomValues(
+          new Uint8Array(this.algorithm === 'AES-GCM' ? 12 : 16),
+        );
+      }
+
+      const params =
+        this.algorithm === 'AES-CTR'
+          ? { name: this.algorithm, counter: iv, length: length }
+          : { name: this.algorithm, iv };
+
+      const ciphertext = await crypto.subtle.encrypt(params, key, data);
+
+      return {
+        ciphertext: Base64.bufferToBase64(ciphertext),
+        iv: Base64.bufferToBase64(iv.buffer as ArrayBuffer),
+      };
+    } catch (error) {
+      throw new EncryptionEncryptError(error);
     }
-
-    const params =
-      this.algorithm === 'AES-CTR'
-        ? { name: this.algorithm, counter: iv, length: length }
-        : { name: this.algorithm, iv };
-
-    const ciphertext = await crypto.subtle.encrypt(params, key, data);
-
-    return {
-      ciphertext: Base64.bufferToBase64(ciphertext),
-      iv: Base64.bufferToBase64(iv.buffer as ArrayBuffer),
-    };
   }
-
   //
   // OVERLOADS DECRYPT
   //
@@ -131,21 +138,25 @@ export class Encryption<
     iv: string,
     length: number = 64,
   ): Promise<string> {
-    const ciphertextBuffer = Base64.base64ToBuffer(ciphertext);
-    const ivBuffer = new Uint8Array(Base64.base64ToBuffer(iv));
+    try {
+      const ciphertextBuffer = Base64.base64ToBuffer(ciphertext);
+      const ivBuffer = new Uint8Array(Base64.base64ToBuffer(iv));
 
-    const params =
-      this.algorithm === 'AES-CTR'
-        ? { name: this.algorithm, counter: ivBuffer, length: length }
-        : { name: this.algorithm, iv: ivBuffer };
+      const params =
+        this.algorithm === 'AES-CTR'
+          ? { name: this.algorithm, counter: ivBuffer, length: length }
+          : { name: this.algorithm, iv: ivBuffer };
 
-    const decrypted = await crypto.subtle.decrypt(
-      params,
-      key,
-      ciphertextBuffer,
-    );
+      const decrypted = await crypto.subtle.decrypt(
+        params,
+        key,
+        ciphertextBuffer,
+      );
 
-    return new TextDecoder().decode(decrypted);
+      return new TextDecoder().decode(decrypted);
+    } catch (error) {
+      throw new EncryptionDecryptError(error);
+    }
   }
 
   /**

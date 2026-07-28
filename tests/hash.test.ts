@@ -1,5 +1,5 @@
 import { expect, test } from '@rstest/core';
-import { Hash } from '../src/index';
+import { Hash, HashError, CryptoEdgeError } from '../src/index';
 
 test('Hash SHA-1', async () => {
   expect(await Hash('hello', 'SHA-1')).toBe(
@@ -55,4 +55,35 @@ test('Hash SHA-512', async () => {
   expect(await Hash('', 'SHA-512')).toBe(
     'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e',
   );
+});
+
+test('Algoritmo invalido lanza HashError', async () => {
+  // @ts-expect-error - algoritmo invalido a proposito
+  await expect(Hash('test', 'SHA-999')).rejects.toBeInstanceOf(HashError);
+});
+
+test('HashError es instancia de CryptoEdgeError', async () => {
+  // @ts-expect-error - algoritmo invalido a proposito
+  await expect(Hash('test', 'SHA-999')).rejects.toBeInstanceOf(CryptoEdgeError);
+});
+
+test('HashError preserva cause', async () => {
+  try {
+    // @ts-expect-error - algoritmo invalido a proposito
+    await Hash('test', 'SHA-999');
+  } catch (err) {
+    expect(err).toBeInstanceOf(HashError);
+    expect((err as HashError).cause).toBeDefined();
+  }
+});
+
+test('Hash SHA-256 con texto largo', async () => {
+  const texto = 'a'.repeat(10000);
+  const result = await Hash(texto, 'SHA-256');
+  expect(result).toHaveLength(64);
+});
+
+test('Hash SHA-256 con unicode y emojis', async () => {
+  const result = await Hash('你好世界 🔐🔒🗝️', 'SHA-256');
+  expect(result).toHaveLength(64);
 });

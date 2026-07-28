@@ -1,3 +1,5 @@
+import { EncryptionKeyError } from '../errors/errors';
+
 export type EncryptAlgorithm = 'AES-GCM' | 'AES-CBC' | 'AES-CTR';
 
 /**
@@ -39,21 +41,28 @@ export class EncryptionKeyHelper<
   //
 
   public async key(keyOrLength?: BufferSource | number): Promise<CryptoKey> {
-    if (keyOrLength instanceof ArrayBuffer || ArrayBuffer.isView(keyOrLength)) {
-      return crypto.subtle.importKey(
-        'raw',
-        keyOrLength,
-        { name: this.algorithm },
+    try {
+      if (
+        keyOrLength instanceof ArrayBuffer ||
+        ArrayBuffer.isView(keyOrLength)
+      ) {
+        return await crypto.subtle.importKey(
+          'raw',
+          keyOrLength,
+          { name: this.algorithm },
+          true,
+          ['encrypt', 'decrypt'],
+        );
+      }
+
+      return await crypto.subtle.generateKey(
+        { name: this.algorithm, length: keyOrLength || 256 },
         true,
         ['encrypt', 'decrypt'],
       );
+    } catch (error) {
+      throw new EncryptionKeyError(error);
     }
-
-    return crypto.subtle.generateKey(
-      { name: this.algorithm, length: keyOrLength || 256 },
-      true,
-      ['encrypt', 'decrypt'],
-    );
   }
 
   /**
@@ -63,6 +72,10 @@ export class EncryptionKeyHelper<
    * @returns Los bytes de la clave, como `ArrayBuffer`.
    */
   public async export({ key }: { key: CryptoKey }): Promise<ArrayBuffer> {
-    return await crypto.subtle.exportKey('raw', key);
+    try {
+      return await crypto.subtle.exportKey('raw', key);
+    } catch (error) {
+      throw new EncryptionKeyError(error);
+    }
   }
 }
