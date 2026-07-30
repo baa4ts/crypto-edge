@@ -8,11 +8,11 @@
   },
     "repository": {
     "type": "git",
-    "url": "git+https://github.com/baa4ts/compress-edge.git"
+    "url": "git+https://github.com/baa4ts/crypto-edge.git"
   },
-  "homepage": "https://github.com/baa4ts/compress-edge#readme",
+  "homepage": "https://github.com/baa4ts/crypto-edge",
   "bugs": {
-    "url": "https://github.com/baa4ts/compress-edge/issues"
+    "url": "https://github.com/baa4ts/crypto-edge/issues"
   },
   "keywords": [
     "crypto",
