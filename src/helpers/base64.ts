@@ -1,13 +1,13 @@
 /**
- * Utilidad para convertir entre ArrayBuffer y Base64.
- * Usada por Signature y Encryption para codificar/decodificar datos.
+ * Utility for converting between `ArrayBuffer` and Base64.
+ * Used by `Signature` and `Encryption` to encode/decode data.
  */
 export class Base64 {
   /**
-   * Convierte un ArrayBuffer a string Base64 para almacenamiento o transmision.
+   * Converts an `ArrayBuffer` to a Base64 string for storage or transmission.
    *
-   * @param buffer Buffer a convertir.
-   * @returns String en formato Base64.
+   * @param buffer Buffer to convert.
+   * @returns String in Base64 format.
    */
   public static bufferToBase64(buffer: ArrayBufferLike): string {
     const byteArray = new Uint8Array(buffer);
@@ -19,10 +19,10 @@ export class Base64 {
   }
 
   /**
-   * Convierte un string Base64 a ArrayBuffer.
+   * Converts a Base64 string to an `ArrayBuffer`.
    *
-   * @param base64 String en formato Base64.
-   * @returns ArrayBuffer descodificado.
+   * @param base64 String in Base64 format.
+   * @returns Decoded `ArrayBuffer`.
    */
   public static base64ToBuffer(base64: string): ArrayBuffer {
     return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)).buffer;

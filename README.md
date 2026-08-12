@@ -1,88 +1,86 @@
 # crypto-edge
 
-Es una libreria wrapper construida sobre [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API) para abstraer funcionalidades sencillas como hashing, criptografia y firmas, con tipado seguro y manejo de errores robusto. Diseñada para entornos Edge y el navegador.
+A wrapper library built on top of the Web Crypto API to abstract simple functionality like hashing, encryption and signing, with type-safe overloading and robust error handling. Designed for Edge environments and the browser.
 
-[![Socket Badge](https://badge.socket.dev/npm/package/crypto-edge/1.0.0)](https://badge.socket.dev/npm/package/crypto-edge/1.0.0) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/baa4ts/crypto-edge)
+[![Socket Badge](https://badge.socket.dev/npm/package/crypto-edge)](https://badge.socket.dev/npm/package/crypto-edge)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/baa4ts/crypto-edge)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Rslib](https://img.shields.io/badge/Rslib-07C160?style=flat&logo=rsbuild&logoColor=white)](https://rslib.rs/)
 [![Rstest](https://img.shields.io/badge/Rstest-00A8FF?style=flat&logo=rspack&logoColor=white)](https://rstest.rs/)
 
-- [Documentacion - DeepWiki](https://deepwiki.com/baa4ts/crypto-edge)
-- [Primeros Pasos - DeepWiki](https://deepwiki.com/baa4ts/crypto-edge/1.1-getting-started)
+- [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
+- [Documentation - DeepWiki](https://deepwiki.com/baa4ts/crypto-edge)
+- [Getting Started - DeepWiki](https://deepwiki.com/baa4ts/crypto-edge/1.1-getting-started)
 
-## Características
+## Features
 
-- ✅ **Zero dependencies**: Usa la API nativa del navegador/Runtime.
-- ✅ **Type-safe overloading**: Autocompletado inteligente según el algoritmo (ej. `salt` solo aparece en RSA-PSS, `length` solo en AES-CTR).
-- ✅ **Key Management**: Genera, importa y exporta claves facilmente.
-- ✅ **Manejo de errores robusto**: Errores personalizados con jerarquía que preservan la causa original (`cause`).
-- ✅ **Edge-ready**: Lista para Cloudflare Workers, Vercel Edge Functions y navegadores.
+- ✅ **Zero dependencies**: Uses the native browser/runtime API.
+- ✅ **Type-safe overloading**: Smart autocomplete based on the algorithm (e.g. `salt` only appears for RSA-PSS, `length` only for AES-CTR).
+- ✅ **Key management**: Generate, import and export keys easily.
+- ✅ **Robust error handling**: Custom errors with a hierarchy that preserves the original cause (`cause`).
+- ✅ **Edge-ready**: Ready for Cloudflare Workers, Vercel Edge Functions and browsers.
 
 ### Status
 
-| Implementacion | Estado |
+| Implementation | Status |
 | :--- | :---: |
 |   Hashing | ✓ |
 |  Signing | ✓ |
 | Encryption | ✓ |
 | Custom Errors | ✓ |
 
-### Referencias
-- [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
-
-
-## Instalacion
+## Installation
 
 ```bash
 npm install crypto-edge
-# o
+# or
 pnpm add crypto-edge
-# o
+# or
 yarn add crypto-edge
 ```
 
-## Uso basico
+## Basic usage
 
 ### Hash
 
 ```typescript
 import { Hash } from 'crypto-edge';
 
-const hash = await Hash('Hola mundo', 'SHA-256');
+const hash = await Hash('Hello world', 'SHA-256');
 console.log(hash); // hexadecimal
 ```
 
-### Cifrado simetrico (AES)
+### Symmetric encryption (AES)
 
 ```typescript
 import { Encryption } from 'crypto-edge';
 
 const enc = new Encryption('AES-GCM');
-const key = await enc.key(); // genera clave de 256 bits
+const key = await enc.key(); // generates a 256-bit key
 
-const { ciphertext, iv } = await enc.encrypt('mi texto secreto', key);
-const texto = await enc.decrypt(ciphertext, key, iv);
+const { ciphertext, iv } = await enc.encrypt('my secret text', key);
+const text = await enc.decrypt(ciphertext, key, iv);
 
-console.log(texto); // 'mi texto secreto'
+console.log(text); // 'my secret text'
 ```
 
-### Firmas digitales
+### Digital signatures
 
 ```typescript
 import { Signature } from 'crypto-edge';
 
 const sig = new Signature('ECDSA');
-const keyPair = await sig.key(); // genera par de claves
+const keyPair = await sig.key(); // generates a key pair
 
-const firma = await sig.sign('mensaje', keyPair);
-const valida = await sig.verify('mensaje', firma, keyPair);
+const signature = await sig.sign('message', keyPair);
+const isValid = await sig.verify('message', signature, keyPair);
 
-console.log(valida); // true
+console.log(isValid); // true
 ```
 
-## Manejo de Errores
+## Error handling
 
-La librería proporciona una jerarquía de errores personalizados que se extienden de `CryptoEdgeError`. Todos los errores preservan la causa original usando la propiedad estándar `cause` de JavaScript.
+The library provides a hierarchy of custom errors that extend `CryptoEdgeError`. Every error preserves the original cause using JavaScript's standard `cause` property.
 
 ```typescript
 import { Encryption, EncryptionDecryptError, CryptoEdgeError } from 'crypto-edge';
@@ -91,28 +89,28 @@ const enc = new Encryption('AES-GCM');
 const key = await enc.key();
 
 try {
-  // Intentar desencriptar datos invalidos o con clave incorrecta
-  await enc.decrypt('datos-corruptos', key, 'iv-invalido');
+  // Attempt to decrypt invalid data or use the wrong key
+  await enc.decrypt('corrupted-data', key, 'invalid-iv');
 } catch (err) {
   if (err instanceof EncryptionDecryptError) {
-    console.error('La desencriptación falló:', err.message);
-    console.error('Causa original:', err.cause); // Error nativo del navegador
+    console.error('Decryption failed:', err.message);
+    console.error('Original cause:', err.cause); // Native browser error
   }
 }
 ```
 
-### Jerarquía de Errores
+### Error hierarchy
 
-- **`CryptoEdgeError`**: Clase base para todos los errores de la librería.
-  - **`HashError`**: Lanzado cuando falla la generación del hash.
-  - **Errores de Encriptación**:
-    - **`EncryptionEncryptError`**: Lanzado cuando falla el proceso de cifrado.
-    - **`EncryptionDecryptError`**: Lanzado cuando falla el proceso de descifrado (ej. datos alterados, clave incorrecta).
-    - **`EncryptionKeyError`**: Lanzado cuando falla la generación, importación o exportación de claves de cifrado.
-  - **Errores de Firma**:
-    - **`SignatureSignError`**: Lanzado cuando falla el proceso de firma.
-    - **`SignatureVerifyError`**: Lanzado cuando hay un error al verificar la firma (no confundir con una verificación que devuelve `false`).
-    - **`SignatureKeyError`**: Lanzado cuando falla la generación de claves de firma.
+- **`CryptoEdgeError`**: Base class for all errors in the library.
+  - **`HashError`**: Thrown when hash generation fails.
+  - **Encryption errors**:
+    - **`EncryptionEncryptError`**: Thrown when the encryption process fails.
+    - **`EncryptionDecryptError`**: Thrown when the decryption process fails (e.g. tampered data, wrong key).
+    - **`EncryptionKeyError`**: Thrown when generating, importing or exporting an encryption key fails.
+  - **Signature errors**:
+    - **`SignatureSignError`**: Thrown when the signing process fails.
+    - **`SignatureVerifyError`**: Thrown when an error occurs while verifying the signature (not to be confused with a verification that returns `false`).
+    - **`SignatureKeyError`**: Thrown when generating a signature key fails.
 
 ## API
 
@@ -120,31 +118,31 @@ try {
 
 `Hash(buffer: string, algorithm: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512'): Promise<string>`
 
-Genera el hash del texto y lo devuelve en hexadecimal.
+Generates the hash of the text and returns it in hexadecimal.
 
 ### Encryption
 
 `new Encryption(algorithm: 'AES-GCM' | 'AES-CBC' | 'AES-CTR')`
 
-- `key(length?: number): Promise<CryptoKey>` – genera una clave nueva (por defecto 256 bits).
-- `key(key: BufferSource): Promise<CryptoKey>` – importa una clave desde bytes crudos.
-- `encrypt(buffer: string, key: CryptoKey, iv?: Uint8Array, length?: number): Promise<{ ciphertext: string; iv: string }>` – cifra el texto. Si no se provee IV, se genera uno aleatorio. El parámetro `length` es exclusivo de `AES-CTR`.
-- `decrypt(ciphertext: string, key: CryptoKey, iv: string, length?: number): Promise<string>` – descifra el texto. El parámetro `length` es exclusivo de `AES-CTR`.
-- `export({ key }: { key: CryptoKey }): Promise<ArrayBuffer>` – exporta la clave a bytes crudos.
-- `generateIV(): Uint8Array` – genera un Vector de Inicialización aleatorio del tamaño correcto (12 bytes para GCM, 16 para CBC/CTR).
+- `key(length?: number): Promise<CryptoKey>` – generates a new key (256 bits by default).
+- `key(key: BufferSource): Promise<CryptoKey>` – imports a key from raw bytes.
+- `encrypt(buffer: string, key: CryptoKey, iv?: Uint8Array, length?: number): Promise<{ ciphertext: string; iv: string }>` – encrypts the text. If no IV is provided, a random one is generated. The `length` parameter is exclusive to `AES-CTR`.
+- `decrypt(ciphertext: string, key: CryptoKey, iv: string, length?: number): Promise<string>` – decrypts the text. The `length` parameter is exclusive to `AES-CTR`.
+- `export({ key }: { key: CryptoKey }): Promise<ArrayBuffer>` – exports the key to raw bytes.
+- `generateIV(): Uint8Array` – generates a random Initialization Vector of the correct size (12 bytes for GCM, 16 for CBC/CTR).
 
 ### Signature
 
 `new Signature(algorithm: 'HMAC' | 'ECDSA' | 'RSASSA-PKCS1-v1_5' | 'RSA-PSS')`
 
-- `key(): Promise<CryptoKey | CryptoKeyPair>` – genera una clave o par de claves segun el algoritmo (HMAC devuelve `CryptoKey`, el resto `CryptoKeyPair`).
-- `sign(buffer: string, key: CryptoKey | CryptoKeyPair, hash?: HashAlgorithm, salt?: number): Promise<string>` – firma el texto y devuelve la firma en Base64. `hash` aplica a HMAC/ECDSA, `salt` aplica a RSA-PSS.
-- `verify(buffer: string, signature: string, key: CryptoKey | CryptoKeyPair, hash?: HashAlgorithm, salt?: number): Promise<boolean>` – verifica la firma. Devuelve `true` si es válida, `false` si no coincide.
+- `key(): Promise<CryptoKey | CryptoKeyPair>` – generates a key or key pair depending on the algorithm (HMAC returns `CryptoKey`, the rest return `CryptoKeyPair`).
+- `sign(buffer: string, key: CryptoKey | CryptoKeyPair, hash?: HashAlgorithm, salt?: number): Promise<string>` – signs the text and returns the signature in Base64. `hash` applies to HMAC/ECDSA, `salt` applies to RSA-PSS.
+- `verify(buffer: string, signature: string, key: CryptoKey | CryptoKeyPair, hash?: HashAlgorithm, salt?: number): Promise<boolean>` – verifies the signature. Returns `true` if valid, `false` if it doesn't match.
 
-## Algoritmos soportados
+## Supported algorithms
 
-| Categoria       | Algoritmos                                      |
+| Category        | Algorithms                                      |
 |-----------------|-------------------------------------------------|
 | Hash            | SHA-1, SHA-256, SHA-384, SHA-512                |
-| Cifrado         | AES-GCM, AES-CBC, AES-CTR                       |
-| Firmas          | HMAC, ECDSA (P-256), RSASSA-PKCS1-v1_5, RSA-PSS |
+| Encryption      | AES-GCM, AES-CBC, AES-CTR                       |
+| Signatures      | HMAC, ECDSA (P-256), RSASSA-PKCS1-v1_5, RSA-PSS |

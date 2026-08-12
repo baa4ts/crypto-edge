@@ -1,9 +1,14 @@
 import { HashError } from '../../errors/errors';
 
 /**
- * @param buffer Texto para generar el hash.
- * @param algorithm Algoritmo de hash (SHA-1/SHA-256/SHA-384/SHA-512).
- * @returns Hash generado en hexadecimal.
+ * Generates a hex-encoded hash of the given text using the Web Crypto API.
+ *
+ * @example
+ * const digest = await Hash('hello world', 'SHA-256');
+ *
+ * @param buffer Text to hash.
+ * @param algorithm Hash algorithm (SHA-1/SHA-256/SHA-384/SHA-512).
+ * @returns The generated hash in hexadecimal.
  */
 export const Hash = async (
   buffer: string,

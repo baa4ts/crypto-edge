@@ -8,14 +8,14 @@ import { SignatureSignError, SignatureVerifyError } from '../../errors/errors';
 export type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512';
 
 /**
- * Clase para firmar y verificar datos usando multiples algoritmos de firma.
- * Soporta HMAC, ECDSA, RSASSA-PKCS1-v1_5 y RSA-PSS con type-safe overloading.
+ * Class for signing and verifying data using multiple signature algorithms.
+ * Supports HMAC, ECDSA, RSASSA-PKCS1-v1_5 and RSA-PSS with type-safe overloading.
  *
  * @example
  * const sig = new Signature('HMAC');
  * const key = await sig.key();
- * const firma = await sig.sign('mensaje', key);
- * const valida = await sig.verify('mensaje', firma, key);
+ * const signature = await sig.sign('message', key);
+ * const isValid = await sig.verify('message', signature, key);
  */
 export class Signature<
   T extends SignatureAlgorithm = SignatureAlgorithm,
@@ -25,10 +25,10 @@ export class Signature<
   //
 
   /**
-   * @param buffer Texto a firmar.
-   * @param key Clave privada (`CryptoKey`) o par de claves (`CryptoKeyPair`).
-   * @param hash Algoritmo de hash. Por defecto 'SHA-256'.
-   * @returns Firma en formato Base64.
+   * @param buffer Text to sign.
+   * @param key Private key (`CryptoKey`) or key pair (`CryptoKeyPair`).
+   * @param hash Hash algorithm. Defaults to 'SHA-256'.
+   * @returns The signature in Base64 format.
    */
   public async sign<U extends 'HMAC' | 'ECDSA'>(
     this: Signature<U>,
@@ -38,11 +38,11 @@ export class Signature<
   ): Promise<string>;
 
   /**
-   * @param buffer Texto a firmar.
-   * @param key Clave privada (`CryptoKey`) o par de claves (`CryptoKeyPair`).
-   * @param hash Algoritmo de hash. Por defecto 'SHA-256'.
-   * @param salt Largo del salt en bytes. Por defecto 32.
-   * @returns Firma en formato Base64.
+   * @param buffer Text to sign.
+   * @param key Private key (`CryptoKey`) or key pair (`CryptoKeyPair`).
+   * @param hash Hash algorithm. Defaults to 'SHA-256'.
+   * @param salt Salt length in bytes. Defaults to 32.
+   * @returns The signature in Base64 format.
    */
   public async sign<U extends 'RSASSA-PKCS1-v1_5' | 'RSA-PSS'>(
     this: Signature<U>,
@@ -53,7 +53,7 @@ export class Signature<
   ): Promise<string>;
 
   //
-  // Implementacion
+  // Implementation
   //
   public async sign(
     buffer: string,
@@ -88,11 +88,11 @@ export class Signature<
   //
 
   /**
-   * @param buffer Texto original (el mismo que se firmo).
-   * @param signature Firma en formato Base64 obtenida con `sign()`.
-   * @param key Clave publica (`CryptoKey`) o par de claves (`CryptoKeyPair`).
-   * @param hash Algoritmo de hash. Por defecto 'SHA-256'.
-   * @returns `true` si la firma es valida, `false` si es invalida.
+   * @param buffer Original text (the same one that was signed).
+   * @param signature Base64 signature obtained with `sign()`.
+   * @param key Public key (`CryptoKey`) or key pair (`CryptoKeyPair`).
+   * @param hash Hash algorithm. Defaults to 'SHA-256'.
+   * @returns `true` if the signature is valid, `false` if it's invalid.
    */
   public async verify<U extends 'HMAC' | 'ECDSA'>(
     this: Signature<U>,
@@ -103,12 +103,12 @@ export class Signature<
   ): Promise<boolean>;
 
   /**
-   * @param buffer Texto original (el mismo que se firmo).
-   * @param signature Firma en formato Base64 obtenida con `sign()`.
-   * @param key Clave publica (`CryptoKey`) o par de claves (`CryptoKeyPair`).
-   * @param hash Algoritmo de hash. Por defecto 'SHA-256'.
-   * @param salt Largo del salt en bytes. Por defecto 32.
-   * @returns `true` si la firma es valida, `false` si es invalida.
+   * @param buffer Original text (the same one that was signed).
+   * @param signature Base64 signature obtained with `sign()`.
+   * @param key Public key (`CryptoKey`) or key pair (`CryptoKeyPair`).
+   * @param hash Hash algorithm. Defaults to 'SHA-256'.
+   * @param salt Salt length in bytes. Defaults to 32.
+   * @returns `true` if the signature is valid, `false` if it's invalid.
    */
   public async verify<U extends 'RSASSA-PKCS1-v1_5' | 'RSA-PSS'>(
     this: Signature<U>,
@@ -120,7 +120,7 @@ export class Signature<
   ): Promise<boolean>;
 
   //
-  // Implementacion
+  // Implementation
   //
 
   public async verify(

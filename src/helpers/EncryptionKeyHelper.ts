@@ -3,20 +3,20 @@ import { EncryptionKeyError } from '../errors/errors';
 export type EncryptAlgorithm = 'AES-GCM' | 'AES-CBC' | 'AES-CTR';
 
 /**
- * Clase para gestionar claves criptograficas simetricas para encriptacion.
- * Soporta generar nuevas claves aleatorias o importarlas desde bytes crudos.
+ * Class for managing symmetric cryptographic keys for encryption.
+ * Supports generating new random keys or importing them from raw bytes.
  *
  * @example
  * const enc = new EncryptionKeyHelper('AES-GCM');
- * const key = await enc.key(); // Genera una key de 256 bits
+ * const key = await enc.key(); // Generates a 256-bit key
  * const bytes = await enc.export({ key });
- * const importedKey = await enc.key(bytes); // Importa la key
+ * const importedKey = await enc.key(bytes); // Imports the key
  */
 export class EncryptionKeyHelper<
   T extends EncryptAlgorithm = EncryptAlgorithm,
 > {
   /**
-   * @param algorithm Algoritmo de encriptacion para usar en esta instancia.
+   * @param algorithm Encryption algorithm to use for this instance.
    */
   constructor(public algorithm: T) {}
 
@@ -25,19 +25,19 @@ export class EncryptionKeyHelper<
   //
 
   /**
-   * @param length Longitud en bits de la clave a generar. Por defecto 256.
-   * @returns `CryptoKey` lista para encriptar y desencriptar.
+   * @param length Length in bits of the key to generate. Defaults to 256.
+   * @returns `CryptoKey` ready to encrypt and decrypt.
    */
   public async key(length?: number): Promise<CryptoKey>;
 
   /**
-   * @param key Bytes de la clave (obtenidos previamente con `export()`).
-   * @returns `CryptoKey` lista para encriptar y desencriptar.
+   * @param key Key bytes (previously obtained with `export()`).
+   * @returns `CryptoKey` ready to encrypt and decrypt.
    */
   public async key(key: BufferSource): Promise<CryptoKey>;
 
   //
-  // Implementacion
+  // Implementation
   //
 
   public async key(keyOrLength?: BufferSource | number): Promise<CryptoKey> {
@@ -66,10 +66,10 @@ export class EncryptionKeyHelper<
   }
 
   /**
-   * Exporta una clave a bytes crudos para poder guardarla.
+   * Exports a key to raw bytes so it can be stored.
    *
-   * @param options.key Clave generada con `key()`.
-   * @returns Los bytes de la clave, como `ArrayBuffer`.
+   * @param options.key Key generated with `key()`.
+   * @returns The key bytes, as an `ArrayBuffer`.
    */
   public async export({ key }: { key: CryptoKey }): Promise<ArrayBuffer> {
     try {

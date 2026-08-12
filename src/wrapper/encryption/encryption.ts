@@ -9,30 +9,30 @@ import {
 } from '../../errors/errors';
 
 /**
- * Utilidad para generar keys, encriptar y desencriptar datos usando
- * los distintos modos de AES soportados por SubtleCrypto.
- * Soporta AES-GCM, AES-CBC y AES-CTR con type-safe overloading.
+ * Utility for generating keys, encrypting and decrypting data using the
+ * different AES modes supported by `SubtleCrypto`.
+ * Supports AES-GCM, AES-CBC and AES-CTR with type-safe overloading.
  *
  * @example
  * const enc = new Encryption('AES-GCM');
  * const key = await enc.key();
- * const { ciphertext, iv } = await enc.encrypt('mi texto secreto', key);
- * const texto = await enc.decrypt(ciphertext, key, iv);
+ * const { ciphertext, iv } = await enc.encrypt('my secret text', key);
+ * const text = await enc.decrypt(ciphertext, key, iv);
  */
 export class Encryption<
   T extends EncryptAlgorithm = EncryptAlgorithm,
 > extends EncryptionKeyHelper<T> {
   //
-  // OVERLOADS ENCRYPT
+  // ENCRYPT OVERLOADS
   //
 
   /**
-   * Encripta un texto con la key indicada (Para GCM y CBC).
+   * Encrypts a text with the given key (for GCM and CBC).
    *
-   * @param buffer Texto a encriptar.
-   * @param key Key generada con `key()`.
-   * @param iv Vector de inicializacion. Si no se proporciona, se genera uno aleatorio.
-   * @returns Objeto con el `ciphertext` en Base64 y el `iv` en Base64 usado.
+   * @param buffer Text to encrypt.
+   * @param key Key generated with `key()`.
+   * @param iv Initialization vector. If not provided, a random one is generated.
+   * @returns Object with the Base64 `ciphertext` and the Base64 `iv` used.
    */
   public async encrypt<U extends 'AES-GCM' | 'AES-CBC'>(
     this: Encryption<U>,
@@ -42,13 +42,13 @@ export class Encryption<
   ): Promise<{ ciphertext: string; iv: string }>;
 
   /**
-   * Encripta un texto con la key indicada (Para CTR).
+   * Encrypts a text with the given key (for CTR).
    *
-   * @param buffer Texto a encriptar.
-   * @param key Key generada con `key()`.
-   * @param iv Vector de inicializacion (usado como counter). Si no se proporciona, se genera uno.
-   * @param length Longitud del contador en bits. Requerido para AES-CTR.
-   * @returns Objeto con el `ciphertext` en Base64 y el `iv` en Base64 usado.
+   * @param buffer Text to encrypt.
+   * @param key Key generated with `key()`.
+   * @param iv Initialization vector (used as the counter). If not provided, one is generated.
+   * @param length Counter length in bits. Required for AES-CTR.
+   * @returns Object with the Base64 `ciphertext` and the Base64 `iv` used.
    */
   public async encrypt<U extends 'AES-CTR'>(
     this: Encryption<U>,
@@ -59,7 +59,7 @@ export class Encryption<
   ): Promise<{ ciphertext: string; iv: string }>;
 
   //
-  // IMPLEMENTACION ENCRYPT
+  // ENCRYPT Implementation
   //
 
   public async encrypt(
@@ -93,16 +93,16 @@ export class Encryption<
     }
   }
   //
-  // OVERLOADS DECRYPT
+  // DECRYPT OVERLOADS
   //
 
   /**
-   * Desencripta un ciphertext con la key y el iv usados al encriptar (Para GCM y CBC).
+   * Decrypts a ciphertext with the key and iv used to encrypt it (for GCM and CBC).
    *
-   * @param ciphertext Dato encriptado en Base64, obtenido de `encrypt()`.
-   * @param key Misma key usada en `encrypt()`.
-   * @param iv Mismo iv en Base64 devuelto por `encrypt()`.
-   * @returns El texto original desencriptado.
+   * @param ciphertext Base64-encoded encrypted data, obtained from `encrypt()`.
+   * @param key Same key used in `encrypt()`.
+   * @param iv Same Base64 iv returned by `encrypt()`.
+   * @returns The decrypted original text.
    */
   public async decrypt<U extends 'AES-GCM' | 'AES-CBC'>(
     this: Encryption<U>,
@@ -112,13 +112,13 @@ export class Encryption<
   ): Promise<string>;
 
   /**
-   * Desencripta un ciphertext con la key y el iv usados al encriptar (Para CTR).
+   * Decrypts a ciphertext with the key and iv used to encrypt it (for CTR).
    *
-   * @param ciphertext Dato encriptado en Base64, obtenido de `encrypt()`.
-   * @param key Misma key usada en `encrypt()`.
-   * @param iv Mismo iv en Base64 devuelto por `encrypt()` (usado como counter).
-   * @param length Longitud del contador en bits. Por defecto 64.
-   * @returns El texto original desencriptado.
+   * @param ciphertext Base64-encoded encrypted data, obtained from `encrypt()`.
+   * @param key Same key used in `encrypt()`.
+   * @param iv Same Base64 iv returned by `encrypt()` (used as the counter).
+   * @param length Counter length in bits. Defaults to 64.
+   * @returns The decrypted original text.
    */
   public async decrypt<U extends 'AES-CTR'>(
     this: Encryption<U>,
@@ -129,7 +129,7 @@ export class Encryption<
   ): Promise<string>;
 
   //
-  // IMPLEMENTACION DECRYPT
+  // DECRYPT Implementation
   //
 
   public async decrypt(
@@ -160,10 +160,10 @@ export class Encryption<
   }
 
   /**
-   * Genera un Vector de Inicializacion (IV) aleatorio del tamaño correcto
-   * segun el algoritmo configurado (12 bytes para GCM, 16 para CBC/CTR).
+   * Generates a random Initialization Vector (IV) of the correct size for
+   * the configured algorithm (12 bytes for GCM, 16 for CBC/CTR).
    *
-   * @returns Nuevo IV generado.
+   * @returns The newly generated IV.
    */
   public generateIV(): Uint8Array {
     return crypto.getRandomValues(

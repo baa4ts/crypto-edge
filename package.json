@@ -1,12 +1,13 @@
 {
   "name": "crypto-edge",
-  "version": "1.2.1",
+  "version": "1.3.2",
+  "description": "A wrapper library built on top of the Web Crypto API to abstract simple functionality like hashing, encryption and signing, with type-safe overloading and robust error handling.",
   "license": "BSD-3-Clause",
-    "author": {
+  "author": {
     "url": "https://github.com/baa4ts",
     "name": "baa4ts"
   },
-    "repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/baa4ts/crypto-edge.git"
   },

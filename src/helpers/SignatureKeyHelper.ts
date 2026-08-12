@@ -3,16 +3,25 @@ import { SignatureKeyError } from '../errors/errors';
 export type SignatureAlgorithm =
   'HMAC' | 'ECDSA' | 'RSASSA-PKCS1-v1_5' | 'RSA-PSS';
 
+/**
+ * Class for generating signing keys for the supported signature algorithms.
+ * Acts as the base class for `Signature`.
+ */
 export class SignatureKeyHelper<
   T extends SignatureAlgorithm = SignatureAlgorithm,
 > {
   /**
-   * @param algorithm Algoritmo de firma a usar en esta instancia.
+   * @param algorithm Signature algorithm to use for this instance.
    */
   constructor(public algorithm: T) {}
 
   /**
-   * Genera una key (o par de keys) adaptada al algoritmo configurado.
+   * Generates a key (or key pair) matching the configured algorithm.
+   * Returns a single `CryptoKey` for HMAC, or a `CryptoKeyPair` for
+   * ECDSA, RSASSA-PKCS1-v1_5 and RSA-PSS.
+   *
+   * @returns The generated `CryptoKey` or `CryptoKeyPair`, depending on
+   * the algorithm.
    */
   public async key(): Promise<T extends 'HMAC' ? CryptoKey : CryptoKeyPair> {
     try {
